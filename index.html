@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Oruçla Gelen Değerler</title>
+  <style>
+    body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9f9f9;
+  color: #34495e;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+       transform: scale(1.2);
+        transform-origin: center center;
+}
+
+
+  * {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+	  overflow: hidden;
+
+  }
+
+
+.container {
+  max-width: 600px;
+  width: 90%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  padding: 30px;
+  position: relative;
+  text-align: center;
+}
+
+.score, #timer, #question-number {
+  position: absolute;
+  top: 20px;
+  padding: 8px 15px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 18px;
+  user-select: none;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.score {
+  right: 20px;
+  background-color: #2a9df4;
+  color: #fff;
+}
+
+#timer {
+  right: 50%;
+  transform: translateX(50%);
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+#question-number {
+  left: 20px;
+  background-color: #7f8c8d;
+  color: #fff;
+}
+
+.question {
+  font-size: 22px;
+  margin: 80px 0 40px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.options li {
+  background-color: #2a9df4;
+  color: white;
+  margin: 12px 0;
+  padding: 18px 15px;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  box-shadow: 0 3px 8px rgba(42, 157, 244, 0.5);
+}
+
+.options li:hover {
+  background-color: #1e7cd7;
+  box-shadow: 0 6px 15px rgba(30, 124, 215, 0.7);
+}
+
+.options li.correct {
+  background-color: #27ae60 !important;
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.7);
+}
+
+.options li.incorrect {
+  background-color: #e74c3c !important;
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.7);
+}
+
+/* Sonuç penceresi */
+    #result, #error-message, #timeout-message {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      height: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 30%;
+      text-align: center;
+      z-index: 9999;
+      font-size: 24px;
+    }
+
+    #correct-message {
+      color: #27ae60;
+    }
+
+    #error-message {
+      color: #e74c3c;
+    }
+
+#result .star-animation {
+  font-size: 3rem;
+  margin: 20px 0;
+}
+
+
+    #continue-button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 20px;
+    }
+
+    .retry-button {
+      background-color: #1e7cd7;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 10px 20px;
+      transition: background 0.3s;
+      margin-top: 20px;
+    }
+
+.retry-button:hover, #continue-button:hover {
+  background-color: #1e7cd7;
+  box-shadow: 0 6px 15px rgba(30, 124, 215, 0.7);
+}
+
+
+/* Responsive */
+@media (max-width: 480px) {
+  .question {
+    font-size: 18px;
+  }
+  .options li {
+    font-size: 16px;
+    padding: 15px;
+  }
+  #result, #error-message, #timeout-message {
+    font-size: 18px;
+    padding: 25px;
+  }
+}
+
+  </style>
+</head>
+<body>
+<audio id="applause-audio" src="conq.mp3" preload="auto"></audio>
+<audio id="true-audio" src="true.mp3" preload="auto"></audio>
+<audio id="false-audio" src="false.mp3" preload="auto"></audio>
+ <!--
+  <div class="container" id="start-screen">
+
+    <h1>Oruçla Gelen Değerler</h1>
+    <div id="welcome-message">
+   Merhaba arkadaşlar!
+Sizce oruç tutarken sabır, paylaşma ve anlayışlı olma gibi değerler hayatımıza nasıl yansır? Gelin “Oruçla Gelen Değerler” adlı etkinliği yaparak kısa ama anlamlı bir yolculuğa çıkalım. “Başla!” butonuna tıklayarak etkinliğe başlayabilirsiniz. 
+
+    </div>
+    <button id="continue-button">Başla!</button>
+  </div>
+-->
+  <div class="container" id="game-screen">
+    <div class="score">Puan: <span id="score">0</span></div>
+    <div id="timer">15</div>
+    <div id="question-number" class="question-number">Soru: 1</div>
+    <div class="question" id="question-container">
+      <h2 id="question">Sorular yükleniyor...</h2>
+      <ul class="options" id="options"></ul>
+    </div>
+  </div>
+
+  <div id="result" class="hidden"></div>
+
+  <div id="error-message" class="hidden">
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <h3>Cevabınız yanlış!</h3>
+      <div class="retry-container">
+        <button id="retry-button-error" class="retry-button">Tekrar Dene!</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="timeout-message" class="hidden">
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <h3>Belirlenen süre içerisinde cevap veremediniz!</h3>
+      <div class="retry-container">
+        <button id="retry-button-timeout" class="retry-button">Tekrar Dene!</button>
+      </div>
+    </div>
+  </div>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+
+
+  <script>
+const questions = [
+  {
+    question: "Oruçlusunuz ve hava çok sıcak. Susuzluk sizi oldukça zorluyor. İftara da hâlâ saatler var.",
+    options: [
+      "A) Gölgede dinlenmeye çalışır, sabretmeye odaklanırdım.",
+      "B) Sürekli saate bakar, zaman geçmediği için sinirlenirdim.",
+      "C) Dayanamayacağımı düşünüp orucumu bozardım.",
+      "D) Akşam ezanı okunana kadar uyurdum."
+    ],
+    answer: "A",
+    message: "Sabır ve teslimiyet"
+  },
+  {
+    question: "Sınıfta bir arkadaşınız sizi sinirlendirdi. Sinirle tepki vermek üzereyken bir an oruçlu olduğunuzu hatırlayıp duraksıyorsunuz.",
+    options: [
+      "A) Onunla konuşmaz, ondan uzak dururdum.",
+      "B) Sinirimi kontrol edemeyip ona kırıcı sözler söylerdim.",
+      "C) Öfkemi kontrol etmeye çalışır, güzel sözlerle durumu yumuşatırdım.",
+      "D) İçimden bağırmak gelir, kendimi zor tutardım."
+    ],
+    answer: "C",
+    message: "Öfke kontrolü, bağışlama"
+  },
+  {
+    question: "Yolda yürürken yaşlı bir amcanın elindeki eşyaları düşürdüğünü gördünüz. Oruçlusunuz ve çok yorgunsunuz.",
+    options: [
+      "A) “Nasılsa biri yardım eder.” diyerek yoluma devam ederdim.",
+      "B) Yorulduğum için yardım edemezdim ama onun için üzülürdüm.",
+      "C) Oruçluyken yardım etmek zor geldiği için amca beni görmeden yolumu değiştirirdim.",
+      "D) Oruç, yardım etme isteğimi artırdığı için ona hemen yardım ederdim."
+    ],
+    answer: "D",
+    message: "Yardımlaşma ve merhamet"
+  },
+  {
+    question: "İftara az kalmışken market kasasında sıra bekliyorsunuz. Önünüzdeki müşteri bir türlü ödemesini tamamlayamıyor.",
+    options: [
+      "A) Sıradan çıkar, sinirlenip marketi terk ederdim.",
+      "B) Sessizce bekler, sabretmeye çalışırdım.",
+      "C) Önümdeki müşteriyi acele etmesi için uyarırdım.",
+      "D) Söylenerek sıra arkadaşımla konuşurdum."
+    ],
+    answer: "B",
+    message: "Sabır ve anlayış"
+  },
+  {
+    question: "Oruçlusunuz. Sosyal medyada biri sizinle tartışıyor ve sizi haksız yere eleştiriyor.",
+    options: [
+      "A) Sonuna kadar tartışır, hakkımı savunurdum.",
+      "B) Karşılık vermez, yazılanları görmezden gelirdim.",
+      "C) Sert bir dille cevap yazardım, sonra pişman olurdum.",
+      "D) O kişinin yazdıklarını arkadaşlarımla paylaşarak onlardan destek isterdim."
+    ],
+    answer: "B",
+    message: "Öfke kontrolü, sükûnet"
+  },
+  {
+    question: "Kardeşinizle bir oyun oynadınız ve oyunu kaybettiniz. Oruçlu olduğunuz için biraz gerildiniz.",
+    options: [
+      "A) Kaybettiğim için sinirlenir, ortamı terk ederdim.",
+      "B) Öfkemi belli etmezdim ancak bir daha onunla oynamak istemezdim.",
+      "C) Gülümseyerek kardeşime “Tebrik ederim, çok güzel oynadın.” derdim.",
+      "D) Sessiz kalırdım ama içimden sinirlenirdim."
+    ],
+    answer: "C",
+    message: "Hoşgörü"
+  },
+  {
+    question: "Siz oruçluyken bir arkadaşınız teneffüste bir şeyler yiyor ve canınız o yiyecekten çekiyor.",
+    options: [
+      "A) Ona “Burada yeme!” derdim.",
+      "B) İçimden kızar, onun düşüncesiz olduğunu düşünürdüm.",
+      "C) Ona darılır ve bir süre onunla konuşmazdım.",
+      "D) Dikkatimi başka yöne çevirmeye çalışırdım."
+    ],
+    answer: "D",
+    message: "Nefse hâkimiyet"
+  },
+  {
+    question: "Oruçlusunuz. Öğretmeniniz sizi biraz zorlayan uzun bir ödev verdi ancak çok yorgun hissediyorsunuz.",
+    options: [
+      "A) Oruçlu olduğum için ödevi yarına bırakırdım.",
+      "B) Öğretmenime arkadaşımın ödevini gösterirdim.",
+      "C) Ödevimi yapmazdım ve öğretmenime bahane sunardım.",
+      "D) Dinlenip güç toplar, ödevi elimden geldiğince yapmaya çalışırdım."
+    ],
+    answer: "D",
+    message: "Sorumluluk ve azim"
+  },
+  {
+    question: "Okulda iftar yemeği veriliyor. Sıra çok uzun. Oruçlu olduğunuz için çok açsınız.",
+    options: [
+      "A) Açlığa dayanamaz, öne geçmeye çalışırdım.",
+      "B) Sinirlenip görevlilere daha hızlı servis yapmalarını söylerdim.",
+      "C) İçimden söylenir, beklemekten şikâyet ederdim.",
+      "D) Herkesin aynı durumda olduğunu düşünür, sabırla beklerdim."
+    ],
+    answer: "D",
+    message: "Adalet, sabır"
+  }
+];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let questionAnswered = false;
+    let timer;
+    let timeLeft = 30;
+
+    const scoreElement = document.getElementById('score');
+    const questionContainer = document.getElementById('question-container');
+    const optionsElement = document.getElementById('options');
+    const resultElement = document.getElementById('result');
+    const errorMessage = document.getElementById('error-message');
+    const timeoutMessage = document.getElementById('timeout-message');
+    const continueButton = document.getElementById('continue-button');
+    const retryButtonError = document.getElementById('retry-button-error');
+    const retryButtonTimeout = document.getElementById('retry-button-timeout');
+    const questionNumberElement = document.getElementById('question-number');
+    const timerElement = document.getElementById('timer');
+
+// continueButton.addEventListener('click', () => {
+//   document.getElementById('start-screen').classList.add('hidden');
+//   document.getElementById('game-screen').classList.remove('hidden');
+//   loadQuestion();
+// });
+
+    function startTimer() {
+      timeLeft = 30;
+      timerElement.innerText = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        timerElement.innerText = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          showTimeOutMessage();
+        }
+      }, 1000);
+    }
+
+    function loadQuestion() {
+ if (currentQuestion >= questions.length) {
+  resultElement.innerHTML = `
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; color: green;">
+      <h3>Tebrikler! Tüm soruları tamamladınız.</h3>
+      <p class="star-animation">🌟🌟🌟🌟🌟</p>
+      <p>Toplam puanınız: <span id="total-score" style="font-weight: bold;">${score}</span></p>
+    </div>
+  `;
+  resultElement.style.display = 'flex';
+
+  // Alkış sesini çal
+  const applauseAudio = document.getElementById('applause-audio');
+  applauseAudio.play().catch(e => {
+    // Otomatik çalma engellenirse hata yutulsun
+    console.log('Ses çalınamadı:', e);
+  });
+
+  return;
+}
+
+      questionAnswered = false;
+      const question = questions[currentQuestion];
+      questionContainer.querySelector('#question').innerText = question.question;
+      optionsElement.innerHTML = '';
+
+      question.options.forEach(option => {
+        const li = document.createElement('li');
+        li.innerText = option;
+        li.addEventListener('click', checkAnswer);
+        optionsElement.appendChild(li);
+      });
+
+      questionNumberElement.innerText = `Soru: ${currentQuestion + 1}`;
+      startTimer();
+    }
+
+    function checkAnswer(event) {
+  if (questionAnswered) return;
+  questionAnswered = true;
+  clearInterval(timer);
+
+  const selectedOption = event.target.innerText.charAt(0);
+  const options = optionsElement.querySelectorAll('li');
+
+  const trueAudio = document.getElementById('true-audio');
+  const falseAudio = document.getElementById('false-audio');
+
+  if (selectedOption === questions[currentQuestion].answer) {
+    score++;
+    scoreElement.innerText = score;
+
+    options.forEach(option => {
+      if (option.innerText.charAt(0) === questions[currentQuestion].answer) {
+        option.classList.add('correct');
+      }
+    });
+
+    // Doğru cevap sesi çal
+    trueAudio.currentTime = 0;
+    trueAudio.play().catch(e => console.log('True audio error:', e));
+
+    resultElement.innerHTML = `
+      <div id='correct-message'>
+        <h3>${questions[currentQuestion].message}</h3>
+      </div>
+    `;
+    resultElement.style.display = 'flex';
+
+    setTimeout(() => {
+      resultElement.style.display = 'none';
+      currentQuestion++;
+      loadQuestion();
+    }, 1900);
+  } else {
+    options.forEach(option => {
+      if (option.innerText.charAt(0) === questions[currentQuestion].answer) {
+        option.classList.add('correct');
+      } else {
+        option.classList.add('incorrect');
+      }
+    });
+
+    // Yanlış cevap sesi çal
+    falseAudio.currentTime = 0;
+    falseAudio.play().catch(e => console.log('False audio error:', e));
+
+    errorMessage.style.display = 'flex';
+  }
+}
+
+    function showTimeOutMessage() {
+      errorMessage.style.display = "none";
+      timeoutMessage.classList.remove('hidden');
+      timeoutMessage.style.display = 'flex';
+    }
+
+    function restartGame() {
+      errorMessage.style.display = "none";
+      timeoutMessage.classList.add("hidden");
+      timeoutMessage.style.display = 'none';
+      resultElement.style.display = "none";
+      currentQuestion = 0;
+      score = 0;
+      scoreElement.innerText = score;
+      loadQuestion();
+    }
+
+    retryButtonError.addEventListener('click', restartGame);
+    retryButtonTimeout.addEventListener('click', restartGame);
+	window.onload = () => {
+  loadQuestion();
+};
+  </script>
+</body>
+</html>
